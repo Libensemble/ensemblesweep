@@ -1,5 +1,6 @@
 [project]
 authors = [{ name = "jlnav", email = "jnavarro@anl.gov" }]
+description = "A libEnsemble-based parameter sweep tool"
 dependencies = ["libensemble>=1.5.0,<2"]
 name = "ensemblesweep"
 requires-python = ">= 3.11"
@@ -8,10 +9,6 @@ version = "0.1.0"
 [build-system]
 build-backend = "setuptools.build_meta"
 requires = ["setuptools", "wheel", "pip>=24.3.1,<27", "setuptools>=75.1.0,<83"]
-
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["ensemblesweep*"]
 
 [tool.setuptools.dynamic]
 version = { attr = "ensemblesweep.version.__version__" }
