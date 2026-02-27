@@ -4,15 +4,23 @@ import time
 import numpy as np
 
 from libensemble import Ensemble
+from libensemble import logger
+from libensemble.comms.logs import LogConfig
 from libensemble.specs import SimSpecs, AllocSpecs, ExitCriteria
 from libensemble.alloc_funcs.give_pregenerated_work import give_pregenerated_sim_work as alloc_f
 
 from .sim_funcs import generic_function_simf, generic_executable_simf
 
+logs = LogConfig.config
+logs.stat_filename = "stats.txt"
+
 class ResultWrapper:
     def __init__(self, sweep):
         self.sweep = sweep
         
+    def __len__(self):
+        return int(np.sum(self.sweep._H_total["sim_ended"]))
+
     def __getitem__(self, i):
         results = self.sweep._H_total[self.sweep._H_total["sim_ended"]]
         if len(results) == 0:
@@ -22,7 +30,8 @@ class ResultWrapper:
         
         # format out fields, exclude internal libEnsemble properties
         ignore_fields = ["sim_id", "sim_started", "sim_started_time", "sim_ended", "sim_ended_time", 
-                         "sim_worker", "sim_time", "given", "given_time", "cancel_requested", "kill_sent"]
+                         "sim_worker", "sim_time", "given", "given_time", "cancel_requested", "kill_sent",
+                         "gen_informed", "gen_informed_time", "gen_started_time", "gen_ended_time", "gen_worker"]
                          
         if isinstance(sliced, np.void):
             out = {}
@@ -92,9 +101,13 @@ class Sweep:
         ensemble = Ensemble(parse_args=False, libE_specs=libE_specs)
         ensemble.H0 = self._H_total
         
-        out_spec = [("output", float), ("eval_time", float)] 
-        
         if self.objective_function:
+            out_fields = self.objective_output if self.objective_output else "output"
+            if isinstance(out_fields, str):
+                out_fields = [out_fields]
+            
+            out_spec = [(f, float) for f in out_fields] + [("eval_time", float)]
+            
             sim_specs = SimSpecs(
                 sim_f=generic_function_simf,
                 inputs=self.input_data._keys,
@@ -105,6 +118,7 @@ class Sweep:
                 }
             )
         else:
+            out_spec = [("output", float), ("eval_time", float)] 
             sim_specs = SimSpecs(
                 sim_f=generic_executable_simf,
                 inputs=self.input_data._keys,

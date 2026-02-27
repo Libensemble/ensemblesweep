@@ -3,11 +3,13 @@
 ensemblesweep
 =============
 
-ensemblesweep is a thin wrapper around [libEnsemble](https://libensemble.readthedocs.io/en/latest/) 
-for running parallel objective-function or executable evaluations.
+``ensemblesweep`` is a small library based on [libEnsemble](https://libensemble.readthedocs.io/en/latest/) 
+for parallel parameter sweeps of objective functions or executables.
 
 Installation
 ============
+
+In the project directory:
 
 ```bash
 pip install .
@@ -54,15 +56,12 @@ if __name__ == "__main__":
 Executables
 -----------
 
-1. Specify any number of iterable inputs to a ``Data`` object.
 
-2. Specify an *executable* to the ``Sweep`` object. Provide the input data.
-    - The Data parameters will be passed as arguments to the executable in the order they are defined.
+- Specify an *executable* to the ``Sweep`` object.
+    - The ``Data`` parameters will be passed as arguments to the executable in the order they are defined.
     - The output of the executable will be read:
         - from the file specified by ``objective_output`` (if provided).
         - or, if ``objective_output`` is not specified, the last line of the executable's stdout.
-
-3. Run the sweep.
 
 ```python
 
@@ -77,7 +76,6 @@ Executables
     )
 
     # each of the samples will be given to the executable as arguments, in the exact order. Parallel runs.
-
     sweep = Sweep(
         objective_executable=objective_path,
         objective_output="forces.stat",
@@ -107,13 +105,14 @@ Additional Features
             sweep.run()
 ```
 
-- Estimate the runtime for a subset of the total points.
+- Estimate the runtime for a subset of the total points. Parallelism is considered.
 
 ```python
+
     sweep.estimated_time(4)
 ```
 
-- Get results in NumPy form
+- Get results as NumPy
 
 ```python
 

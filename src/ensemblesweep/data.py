@@ -48,7 +48,7 @@ class Data:
         Converts the computed parameter space to a libEnsemble H0 array.
         """
         # Add basic libEnsemble fields
-        full_dtype = self.dtype_spec + [("sim_id", int), ("sim_started", bool)]
+        full_dtype = self.dtype_spec + [("sim_id", int), ("sim_started", bool), ("sim_ended", bool)]
         H0 = np.zeros(self.total, dtype=full_dtype)
         
         for i, combo in enumerate(self.combinations):

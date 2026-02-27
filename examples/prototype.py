@@ -27,9 +27,6 @@ if __name__ == "__main__":
         x = np.random.uniform(lb, ub, (3, 3))
     )
 
-    # total is the total number of points to evaluate. for the above it'll be 6*4*3 = 72
-    total = data.total
-
     # Create a sweep object
     sweep = Sweep(
         objective_function=my_function,

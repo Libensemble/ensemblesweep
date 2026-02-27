@@ -29,19 +29,30 @@ def generic_function_simf(H, persis_info, sim_specs, *args):
     
     # Format output based on the result type
     output = np.zeros(1, dtype=sim_specs["out"])
+    out_fields = [n for n in output.dtype.names if n != 'eval_time']
     
     if isinstance(result, dict):
+        matched = False
         for k, v in result.items():
             if k in output.dtype.names:
                 output[k] = v
-    elif isinstance(result, tuple) and len(result) > 1:
-        for i, v in enumerate(result):
-            key = f"output_{i}"
-            if key in output.dtype.names:
-                output[key] = v
+                matched = True
+        if not matched:
+            print(f"Warning: Objective function returned dictionary with keys {list(result.keys())}, but none match the expected output fields {out_fields}.")
+    elif isinstance(result, (list, tuple)):
+        # If it's a single-element list/tuple, treat it as a scalar or map to first field
+        if len(result) == 1:
+            if out_fields:
+                output[out_fields[0]] = result[0]
+        else:
+            # Map elements to output fields in order
+            for i, v in enumerate(result):
+                if i < len(out_fields):
+                    output[out_fields[i]] = v
     else:
-        if "output" in output.dtype.names:
-            output["output"] = result
+        # Scalar result
+        if out_fields:
+            output[out_fields[0]] = result
             
     output["eval_time"] = eval_time
     return output, persis_info, calc_status
