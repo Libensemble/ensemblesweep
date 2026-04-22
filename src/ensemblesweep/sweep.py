@@ -51,6 +51,13 @@ class ResultWrapper:
 
     def to_numpy(self):
         return self.sweep._H_total[self.sweep._H_total["sim_ended"]]
+
+    def to_pandas(self):
+        try:
+            import pandas as pd
+        except ImportError:
+            raise ImportError("Pandas is required for to_pandas(). Install it with 'pip install pandas'.")
+        return pd.DataFrame(self[:])
         
     def __str__(self):
         # We can format it nicely

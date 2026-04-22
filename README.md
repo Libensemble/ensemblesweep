@@ -1,7 +1,4 @@
-
-=============
-ensemblesweep
-=============
+# ensemblesweep
 
 ``ensemblesweep`` is a small library based on [libEnsemble](https://libensemble.readthedocs.io/en/latest/) 
 for parallel parameter sweeps of objective functions or executables.
@@ -29,6 +26,7 @@ Simple usage
 
 ```python
 
+import numpy as np
 from ensemblesweep import Sweep, Data
 
 # Define the function to be evaluated
@@ -65,24 +63,42 @@ Executables
 
 ```python
 
-    # an objective can also be an *executable*
-    objective_path = os.path.join(os.path.dirname(__file__), "forces.x")
+import random
+from ensemblesweep import Sweep, Data
 
-    data = Data(
-        num_particles=random.sample(range(100, 1000, 10), 10),
-        num_steps = [10, 100, 1000],
-        rand_seed = 100,
-        kill_rate = [0.01, 0.1, 0.5]
-    )
+# an objective can also be an *executable*
+objective_path = os.path.join(os.path.dirname(__file__), "forces.x")
 
-    # each of the samples will be given to the executable as arguments, in the exact order. Parallel runs.
-    sweep = Sweep(
-        objective_executable=objective_path,
-        objective_output="forces.stat",
-        input_data=data,
-    )
+data = Data(
+    num_particles=random.sample(range(100, 1000, 10), 10),
+    num_steps = [10, 100, 1000],
+    rand_seed = 100,
+    kill_rate = [0.01, 0.1, 0.5]
+)
 
-    sweep.run()
+# each of the samples will be given to the executable as arguments, in the exact order. Parallel runs.
+sweep = Sweep(
+    objective_executable=objective_path,
+    objective_output="forces.stat",
+    input_data=data,
+)
+
+sweep.run()
+```
+
+CLI Interface
+-------------
+
+Sweep a Python function:
+
+```bash
+ensemblesweep py --func mod.func --var "x=0:1:10" --var "y=1,2" --workers 4
+```
+
+Sweep an executable:
+
+```bash
+ensemblesweep exe --app ./sim.x --var "m=1,2,3" --out-file out.stat
 ```
 
 Additional Features
@@ -92,30 +108,36 @@ Additional Features
 
 ```python
 
-    if __name__ == "__main__":
+if __name__ == "__main__":
 
-        sweep.run(10)
+    sweep.run(10)
 
-        # estimated time is in seconds, for the entire sweep
-        if sweep.estimated_time() > 10:
-            print("Estimated time is too long, only doing a little bit")
-            sweep.run(10) # run 10 concurrently. Max concurrency is number of cores
-        else:
-            print("Estimated time is acceptable, continuing")
-            sweep.run()
+    # estimated time is in seconds, for the entire sweep
+    if sweep.estimated_time() > 10:
+        print("Estimated time is too long, only doing a little bit")
+        sweep.run(10) # run 10 concurrently. Max concurrency is number of cores
+    else:
+        print("Estimated time is acceptable, continuing")
+        sweep.run()
 ```
 
 - Estimate the runtime for a subset of the total points. Parallelism is considered.
 
 ```python
 
-    sweep.estimated_time(4)
+sweep.estimated_time(4)
 ```
 
 - Get results as NumPy
 
 ```python
 
-    # print the results, numpy
-    print(sweep.results.to_numpy())
+# print the results, numpy
+print(sweep.results.to_numpy())
+```
+
+- Get results as Pandas
+
+```python
+print(sweep.results.to_pandas())
 ```
