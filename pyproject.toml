@@ -1,7 +1,7 @@
 [project]
 authors = [{ name = "jlnav", email = "jnavarro@anl.gov" }]
 description = "A libEnsemble-based parameter sweep tool"
-dependencies = ["libensemble>=1.5.0,<2"]
+dependencies = ["libensemble>=1.5.0,<2", "pandas>=3.0.2,<4"]
 name = "ensemblesweep"
 requires-python = ">= 3.11"
 version = "0.1.0"
