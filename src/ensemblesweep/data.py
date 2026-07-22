@@ -1,5 +1,7 @@
-import numpy as np
 import itertools
+
+import numpy as np
+
 
 class Data:
     def __init__(self, **kwargs):
@@ -11,7 +13,7 @@ class Data:
         self._keys = []
         self._values = []
         self._shapes = {}
-        
+
         parsed_args = {}
         for k, v in kwargs.items():
             self._keys.append(k)
@@ -21,13 +23,13 @@ class Data:
             else:
                 # Wrap scalars in a list so itertools.product works
                 parsed_args[k] = [v]
-        
+
         # Compute cartesian product
         product = list(itertools.product(*[parsed_args[k] for k in self._keys]))
-        
+
         self.total = len(product)
         self.combinations = product
-        
+
         # Prepare the libEnsemble dtype specification for inputs
         self.dtype_spec = []
         for k in self._keys:
@@ -39,10 +41,10 @@ class Data:
             elif isinstance(sample_val, float):
                 self.dtype_spec.append((k, float))
             elif isinstance(sample_val, str):
-                self.dtype_spec.append((k, "U100")) # fallback string
+                self.dtype_spec.append((k, "U100"))  # fallback string
             else:
-                self.dtype_spec.append((k, object)) # Fallback
-                
+                self.dtype_spec.append((k, object))  # Fallback
+
     def to_h0(self):
         """
         Converts the computed parameter space to a libEnsemble H0 array.
@@ -50,11 +52,11 @@ class Data:
         # Add basic libEnsemble fields
         full_dtype = self.dtype_spec + [("sim_id", int), ("sim_started", bool), ("sim_ended", bool)]
         H0 = np.zeros(self.total, dtype=full_dtype)
-        
+
         for i, combo in enumerate(self.combinations):
             for j, key in enumerate(self._keys):
                 H0[key][i] = combo[j]
             H0["sim_id"][i] = i
             H0["sim_started"][i] = False
-            
+
         return H0

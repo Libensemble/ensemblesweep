@@ -1,5 +1,5 @@
 ---
-name: programmatic_sweep_api
+name: programmatic-sweep-api
 description: Perform a parameter sweep programmatically using the ensemblesweep Python API.
 ---
 

@@ -1,5 +1,5 @@
 ---
-name: cli_python_sweep
+name: cli-python-sweep
 description: Perform a parameter sweep over a Python function using the ensemblesweep CLI.
 ---
 

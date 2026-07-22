@@ -1,5 +1,5 @@
 ---
-name: cli_executable_sweep
+name: cli-executable-sweep
 description: Perform a parameter sweep over an external executable using the ensemblesweep CLI.
 ---
 
