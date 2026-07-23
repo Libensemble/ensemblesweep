@@ -86,11 +86,19 @@ class ResultWrapper:
 
 
 class Sweep:
-    def __init__(self, objective_function=None, input_data=None, objective_executable=None, objective_output=None):
+    def __init__(
+        self,
+        objective_function=None,
+        input_data=None,
+        objective_executable=None,
+        objective_output=None,
+        nworkers=None,
+    ):
         self.objective_function = objective_function
         self.objective_executable = objective_executable
         self.objective_output = objective_output
         self.input_data = input_data
+        self.nworkers = nworkers
 
         if self.objective_function and self.objective_executable:
             raise ValueError("Provide either objective_function or objective_executable, not both.")
@@ -111,10 +119,10 @@ class Sweep:
 
         target_sim_max = self.evaluated + to_evaluate
 
-        cores = max(1, os.cpu_count() - 1)
+        nworkers = self.nworkers if self.nworkers is not None else max(1, os.cpu_count() - 1)
         libE_specs = {
             "comms": "local",
-            "nworkers": cores,
+            "nworkers": nworkers,
             "sim_dirs_make": True,
             "ensemble_dir_path": f"sweep_{int(time.time())}",
             "reuse_output_dir": True,
@@ -158,7 +166,6 @@ class Sweep:
             from libensemble.executors.mpi_executor import MPIExecutor
 
             exctr = MPIExecutor()
-            # Register using absolute path effectively
             exctr.register_app(full_path=self.objective_executable, app_name="executable")
 
         ensemble.run()
@@ -181,7 +188,7 @@ class Sweep:
         if n is None:
             n = len(self._H_total) - self.evaluated
 
-        cores = max(1, os.cpu_count() - 1)
+        nworkers = self.nworkers if self.nworkers is not None else max(1, os.cpu_count() - 1)
 
-        batches = math.ceil(n / cores)
+        batches = math.ceil(n / nworkers)
         return batches * avg_time

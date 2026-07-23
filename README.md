@@ -1,6 +1,6 @@
 # ensemblesweep
 
-``ensemblesweep`` is a small library based on [libEnsemble](https://libensemble.readthedocs.io/en/latest/) 
+``ensemblesweep`` is a small library based on [libEnsemble](https://libensemble.readthedocs.io/en/latest/)
 for parallel parameter sweeps of objective functions or executables.
 
 Installation
@@ -99,6 +99,47 @@ Sweep an executable:
 
 ```bash
 ensemblesweep exe --app ./sim.x --var "m=1,2,3" --out-file out.stat
+```
+
+Concurrent Futures Interface
+----------------------------
+
+``SweepExecutor`` provides a ``concurrent.futures``-style API while keeping libEnsemble as the execution engine. Since a libEnsemble run is the blocking unit, ``submit_sweep`` returns one future for the submitted sweep or batch. Individual parameter points are still evaluated concurrently by libEnsemble workers.
+
+```python
+from ensemblesweep import Data, SweepExecutor
+
+
+data = Data(x=[1, 2, 3], y=[10, 20])
+
+
+def my_function(x, y):
+    return x * y
+
+
+with SweepExecutor(nworkers=4) as executor:
+    future = executor.submit_sweep(
+        objective_function=my_function,
+        input_data=data,
+    )
+
+    batch = future.result()
+
+for result in batch:
+    print(result.params, result.outputs, result.eval_time)
+```
+
+You can also submit an existing ``Sweep`` object, including a partial batch:
+
+```python
+from ensemblesweep import Sweep, SweepExecutor
+
+
+sweep = Sweep(objective_function=my_function, input_data=data)
+
+with SweepExecutor(nworkers=4) as executor:
+    future = executor.submit(sweep, n=10)
+    batch = future.result()
 ```
 
 Additional Features
