@@ -104,7 +104,7 @@ ensemblesweep exe --app ./sim.x --var "m=1,2,3" --out-file out.stat
 Concurrent Futures Interface
 ----------------------------
 
-``SweepExecutor`` provides a ``concurrent.futures``-style API while keeping libEnsemble as the execution engine. Since a libEnsemble run is the blocking unit, ``submit_sweep`` returns one future for the submitted sweep or batch. Individual parameter points are still evaluated concurrently by libEnsemble workers.
+A ``concurrent.futures``-style API. A libEnsemble run blocks, so ``submit_sweep`` returns one future for a whole batch. Individual parameter points are still evaluated concurrently.
 
 ```python
 from ensemblesweep import Data, SweepExecutor
