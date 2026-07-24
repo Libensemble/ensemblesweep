@@ -8,81 +8,11 @@ from libensemble.alloc_funcs.give_pregenerated_work import give_pregenerated_sim
 from libensemble.comms.logs import LogConfig
 from libensemble.specs import AllocSpecs, ExitCriteria, SimSpecs
 
+from .results import SweepResults
 from .sim_funcs import generic_executable_simf, generic_function_simf
 
 logs = LogConfig.config
 logs.stat_filename = "stats.txt"
-
-
-class ResultWrapper:
-    def __init__(self, sweep):
-        self.sweep = sweep
-
-    def __len__(self):
-        return int(np.sum(self.sweep._H_total["sim_ended"]))
-
-    def __getitem__(self, i):
-        results = self.sweep._H_total[self.sweep._H_total["sim_ended"]]
-        if len(results) == 0:
-            return []
-
-        sliced = results[i]
-
-        # format out fields, exclude internal libEnsemble properties
-        ignore_fields = [
-            "sim_id",
-            "sim_started",
-            "sim_started_time",
-            "sim_ended",
-            "sim_ended_time",
-            "sim_worker",
-            "sim_time",
-            "given",
-            "given_time",
-            "cancel_requested",
-            "kill_sent",
-            "gen_informed",
-            "gen_informed_time",
-            "gen_started_time",
-            "gen_ended_time",
-            "gen_worker",
-        ]
-
-        if isinstance(sliced, np.void):
-            out = {}
-            for name in sliced.dtype.names:
-                if name not in ignore_fields:
-                    out[name] = sliced[name]
-            return out
-        else:
-            out_list = []
-            for item in sliced:
-                out = {}
-                for name in item.dtype.names:
-                    if name not in ignore_fields:
-                        out[name] = item[name]
-                out_list.append(out)
-            return out_list
-
-    def to_numpy(self):
-        return self.sweep._H_total[self.sweep._H_total["sim_ended"]]
-
-    def to_pandas(self):
-        try:
-            import pandas as pd
-        except ImportError:
-            raise ImportError("Pandas is required for to_pandas(). Install it with 'pip install pandas'.")
-        return pd.DataFrame(self[:])
-
-    def __str__(self):
-        # We can format it nicely
-        results = self.sweep._H_total[self.sweep._H_total["sim_ended"]]
-        if len(results) == 0:
-            return "[]"
-        return str(self[:])
-
-    def __repr__(self):
-        return repr(self[:])
 
 
 class Sweep:
@@ -105,7 +35,7 @@ class Sweep:
 
         self._H_total = input_data.to_h0()
         self.evaluated = 0
-        self.results = ResultWrapper(self)
+        self.results = SweepResults(self)
 
     def run(self, n=None):
         total_points = len(self._H_total)

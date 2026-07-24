@@ -106,6 +106,8 @@ Concurrent Futures Interface
 
 A ``concurrent.futures``-style API. A libEnsemble run blocks, so ``submit_sweep`` returns one future for a whole batch. Individual parameter points are still evaluated concurrently.
 
+``submit_sweep()`` returns a single ``Future`` whose ``result()`` is a ``SweepResults`` collection — one entry per evaluated point. Each entry is a ``SweepResult`` with ``index``, ``params``, ``outputs``, ``eval_time``, and ``status``.
+
 ```python
 from ensemblesweep import Data, SweepExecutor
 
@@ -141,6 +143,8 @@ with SweepExecutor(nworkers=4) as executor:
     future = executor.submit(sweep, n=10)
     batch = future.result()
 ```
+
+``SweepResults`` (returned by both ``sweep.results`` and ``future.result()``) supports indexing, iteration, ``len()``, ``to_numpy()``, and ``to_pandas()``.
 
 Additional Features
 -------------------
