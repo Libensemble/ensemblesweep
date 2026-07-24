@@ -59,7 +59,7 @@ Executables
     - The ``Data`` parameters will be passed as arguments to the executable in the order they are defined.
     - The output of the executable will be read:
         - from the file specified by ``objective_output`` (if provided).
-        - or, if ``objective_output`` is not specified, the last line of the executable's stdout.
+        - or, if not provided, the last line of the executable's stdout.
 
 ```python
 
@@ -118,6 +118,7 @@ def my_function(x, y):
 
 
 with SweepExecutor(nworkers=4) as executor:
+
     future = executor.submit_sweep(
         objective_function=my_function,
         input_data=data,
@@ -145,7 +146,14 @@ with SweepExecutor(nworkers=4) as executor:
 Results
 -------
 
-``SweepResults`` is a collection of ``SweepResult`` objects. Each ``SweepResult`` has ``index``, ``params`` (the input parameters), ``outputs`` (the objective function's return values), ``eval_time``, and ``status``.
+``SweepResults`` is a collection of ``SweepResult`` objects.
+
+Each ``SweepResult`` has:
+- ``index``
+- ``params`` (the input parameters)
+- ``outputs`` (the objective function's return values)
+- ``eval_time``
+- ``status``
 
 Both the simple ``Sweep`` API and the ``concurrent.futures`` API return ``SweepResults``:
 
