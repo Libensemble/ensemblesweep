@@ -78,9 +78,6 @@ class SweepResults:
         return row
 
 
-SweepBatchResult = SweepResults
-
-
 def _row_to_result(row: np.void, sweep) -> SweepResult:
     input_keys = sweep.input_data._keys
     internal_fields = set(_internal_fields())

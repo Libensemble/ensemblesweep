@@ -1,6 +1,6 @@
 from .data import Data
 from .executor import SweepExecutor
-from .results import SweepBatchResult, SweepResult, SweepResults
+from .results import SweepResult, SweepResults
 from .sweep import Sweep
 
 __all__ = [
@@ -9,5 +9,4 @@ __all__ = [
     "SweepExecutor",
     "SweepResult",
     "SweepResults",
-    "SweepBatchResult",
 ]
