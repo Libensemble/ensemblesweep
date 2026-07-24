@@ -106,8 +106,6 @@ Concurrent Futures Interface
 
 A ``concurrent.futures``-style API. A libEnsemble run blocks, so ``submit_sweep`` returns one future for a whole batch. Individual parameter points are still evaluated concurrently.
 
-``submit_sweep()`` returns a single ``Future`` whose ``result()`` is a ``SweepResults`` collection — one entry per evaluated point. Each entry is a ``SweepResult`` with ``index``, ``params``, ``outputs``, ``eval_time``, and ``status``.
-
 ```python
 from ensemblesweep import Data, SweepExecutor
 
@@ -144,7 +142,57 @@ with SweepExecutor(nworkers=4) as executor:
     batch = future.result()
 ```
 
-``SweepResults`` (returned by both ``sweep.results`` and ``future.result()``) supports indexing, iteration, ``len()``, ``to_numpy()``, and ``to_pandas()``.
+Results
+-------
+
+``SweepResults`` is a collection of ``SweepResult`` objects. Each ``SweepResult`` has ``index``, ``params`` (the input parameters), ``outputs`` (the objective function's return values), ``eval_time``, and ``status``.
+
+Both the simple ``Sweep`` API and the ``concurrent.futures`` API return ``SweepResults``:
+
+```python
+# Simple API
+sweep = Sweep(objective_function=my_function, input_data=data)
+sweep.run()
+results = sweep.results          # SweepResults (all completed)
+
+# Executor API
+with SweepExecutor(nworkers=4) as executor:
+    future = executor.submit(sweep, n=10)
+    results = future.result()    # SweepResults (this batch only)
+```
+
+Iterate over ``SweepResult`` objects:
+
+```python
+for result in results:
+    print(result.index, result.params, result.outputs, result.eval_time)
+```
+
+Index into results:
+
+```python
+print(results[0])                # single SweepResult
+print(results[:3])               # list of SweepResult
+```
+
+Export:
+
+```python
+results.to_numpy()               # raw libEnsemble array
+results.to_pandas()              # DataFrame with index + params + outputs
+```
+
+The ``SweepResult`` dataclass shape:
+
+```python
+SweepResult(
+    index=0,
+    params={"x": 1, "y": 10},
+    outputs={"output": 10.0},
+    eval_time=2.8e-06,
+    status="completed",
+)
+```
 
 Additional Features
 -------------------
@@ -171,18 +219,4 @@ if __name__ == "__main__":
 ```python
 
 sweep.estimated_time(4)
-```
-
-- Get results as NumPy
-
-```python
-
-# print the results, numpy
-print(sweep.results.to_numpy())
-```
-
-- Get results as Pandas
-
-```python
-print(sweep.results.to_pandas())
 ```
