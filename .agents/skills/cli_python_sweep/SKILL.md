@@ -51,4 +51,3 @@ ensemblesweep py --func module_name.function_name \
   - `key=val1,val2`: Discrete list.
   - `key=start:stop:num`: Linear range (`np.linspace`).
 - **Imports**: Ensure you are in the same directory as the target module, as `ensemblesweep` automatically identifies the current working directory.
-- **Remote Execution**: You can pass `--globus-compute-endpoint <UUID>` to execute the grid remotely. However, for complex environments/dependencies, prefer using the `programmatic_sweep_api` skill to handle data placement and imports correctly.

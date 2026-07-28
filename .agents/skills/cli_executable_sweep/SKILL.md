@@ -58,4 +58,3 @@ Executables often involve complex MPI environments or library path dependencies 
 - **Absolute Paths**: For the `--app` flag, it is often safer to use an absolute path (`$(pwd)/my_binary`) or a clear relative path (`./my_binary`).
 - **Dry-Run first**: Use `--dry-run` to check the grid size before launching parallel processes.
 - **Save results**: Always use one of the `--save-*` flags to ensure the final data is persisted in a format you can easily parse later.
-- **Remote Execution**: You can pass `--globus-compute-endpoint <UUID>` to execute the sequence remotely. However, for executables with complex file dependencies, prefer using the `programmatic_sweep_api` skill to handle data movement explicitly.

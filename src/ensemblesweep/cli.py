@@ -5,13 +5,11 @@ import sys
 
 import click
 import numpy as np
-import pandas as pd
 
 from .data import Data
 from .sweep import Sweep
 from .utils import parse_var_string
 
-# Ensure current directory is in path for module resolution
 sys.path.append(os.getcwd())
 
 
@@ -36,10 +34,6 @@ def common_options(f):
         click.option("--save-pandas", type=click.Path(), help="Save results to Parquet file"),
         click.option("--quiet", "-q", is_flag=True, help="Suppress libEnsemble logs"),
         click.option("--dry-run", is_flag=True, help="Show sample of combinations and exit"),
-        click.option(
-            "--globus-compute-endpoint",
-            help="Optional Globus Compute endpoint UUID for remote execution",
-        ),
     ]
     for option in reversed(options):
         f = option(f)
@@ -118,8 +112,7 @@ def py(func, var, **kwargs):
     sweep = Sweep(
         objective_function=objective_function,
         input_data=data,
-        num_workers=kwargs.get("workers"),
-        globus_compute_endpoint=kwargs.get("globus_compute_endpoint"),
+        nworkers=kwargs.get("workers"),
     )
 
     handle_sweep(data, sweep, **kwargs)
@@ -142,8 +135,7 @@ def exe(app, out_file, var, **kwargs):
         objective_executable=app,
         objective_output=out_file,
         input_data=data,
-        num_workers=kwargs.get("workers"),
-        globus_compute_endpoint=kwargs.get("globus_compute_endpoint"),
+        nworkers=kwargs.get("workers"),
     )
 
     handle_sweep(data, sweep, **kwargs)
